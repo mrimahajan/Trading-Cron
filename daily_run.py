@@ -201,7 +201,7 @@ def run_daily():
                         for sector in sectors}
     end = date.today()
     last_run_date = pickle.load(open(staticfiles_storage.path('last_run_date.pkl'),'rb'))
-    if not(end > last_run_date):
+    if (end > last_run_date):
         for sector in sectors:
             reg_eqn = pd.read_excel(staticfiles_storage.path(f'Models/Regression/Equation/{sector}.xlsx'),header=0)
             class_eqn = pd.read_excel(staticfiles_storage.path(f'Models/Classification/Equation/{sector}.xlsx'),header=0)
