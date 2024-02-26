@@ -21,6 +21,7 @@ from datetime import date
 import datetime
 from scipy.stats import norm
 import pickle
+import pytz
 # from decimal import Decimal
 
 def get_data(symbol,start,end):
@@ -199,7 +200,8 @@ def run_daily():
     shares = list(portfolio_shares['Symbol'])
     sector_symbol_mapping = {sector : [share for share in list(portfolio_shares.loc[portfolio_shares['Sector']==sector,'Symbol'])]
                         for sector in sectors}
-    end = date.today()
+    timezone = pytz.timezone('Asia/Kolkata')
+    end = datetime.datetime.now(timezone).date()
     last_run_date = pickle.load(open(staticfiles_storage.path('last_run_date.pkl'),'rb'))
     if (end > last_run_date):
         for sector in sectors:
