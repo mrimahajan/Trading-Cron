@@ -1,0 +1,1 @@
+web: gunicorn Trading.wsgi:application
