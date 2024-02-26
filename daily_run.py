@@ -24,7 +24,7 @@ import pickle
 import pytz
 # from decimal import Decimal
 import logging
-logging.basicConfig(level=logging.ERROR)
+logging.disable(logging.NOTSET)
 
 def get_data(symbol,start,end):
     try:
