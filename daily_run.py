@@ -23,6 +23,8 @@ from scipy.stats import norm
 import pickle
 import pytz
 # from decimal import Decimal
+import logging
+logging.basicConfig(level=logging.ERROR)
 
 def get_data(symbol,start,end):
     try:
@@ -314,7 +316,6 @@ def run_daily():
                     volume_class = np.sum(np.array(class_eqn.loc[0,volume_cols])*np.array(pred.loc[0,volume_cols]))
                     voltality_class = np.sum(np.array(class_eqn.loc[0,voltality_cols])*np.array(pred.loc[0,voltality_cols]))
                     if Stock.objects.filter(Symbol=share).exists():
-                        print(f'starting process from {share}')
                         stock = Stock.objects.get(Symbol=share)
                         stock.Sector = sector 
                         stock.Cap = cap
@@ -335,20 +336,15 @@ def run_daily():
                         stock.mean_reversion_contri_class = reversion_class
                         stock.voltality_contri_class = voltality_class
                         stock.volume_contri_class = volume_class
-                        print(f'{share} has closed price {stock.CLS_Price}')
                         stock.save()
-                        print(f'{share} is being saved at {eod_price} with actual value {stock.CLS_Price}')
                     else:
-                        print(f'starting process from {share}')
                         stock = Stock(Sector=sector,Company=company,Cap=cap,Symbol=share,CLS_Price=eod_price,EOD_Price=eod_price,Expected_Price=expected_price,
                                         net_return=net_return,risk=risk,probability=probability,market_contri_reg=market_reg,momentum_contri_reg=momentum_reg,
                                         mean_reversion_contri_reg=reversion_reg,voltality_contri_reg=voltality_reg,
                                         volume_contri_reg=volume_reg,market_contri_class=market_class,
                                         momentum_contri_class=momentum_class,mean_reversion_contri_class=reversion_class,
                                         voltality_contri_class=voltality_class,volume_contri_class=volume_class)
-                        print(f'{share} has closed price {stock.CLS_Price}')
                         stock.save()
-                        print(f'{share} is being created at {eod_price} with actual value {stock.CLS_Price}')
                 except:
                     pass
         pickle.dump(end,open(staticfiles_storage.path('last_run_date.pkl'),'wb'))
