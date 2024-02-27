@@ -1,4 +1,6 @@
 import  scipy.signal.signaltools
+import logging
+logging.disable(logging.CRITICAL)
 
 def _centered(arr, newsize):
     # Return the center newsize portion of the array.
@@ -23,11 +25,10 @@ from scipy.stats import norm
 import pickle
 import pytz
 # from decimal import Decimal
-import logging
+
 import sys
 import warnings
 import tensorflow as tf
-logging.disable(logging.CRITICAL)
 tf.get_logger().setLevel('ERROR')
 
 def get_data(symbol,start,end):
