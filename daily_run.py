@@ -26,7 +26,9 @@ import pytz
 import logging
 import sys
 import warnings
+import tensorflow as tf
 logging.disable(logging.CRITICAL)
+tf.get_logger().setLevel('ERROR')
 
 def get_data(symbol,start,end):
     try:
