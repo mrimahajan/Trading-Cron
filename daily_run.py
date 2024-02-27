@@ -24,6 +24,8 @@ import pickle
 import pytz
 # from decimal import Decimal
 import logging
+import sys
+import warnings
 logging.disable(logging.CRITICAL)
 
 def get_data(symbol,start,end):
@@ -196,6 +198,12 @@ def get_equation(model):
 def run_daily():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
     django.setup() 
+    # Redirect stdout and stderr to a null device to discard any output
+    sys.stdout = open(os.devnull, 'w')
+    sys.stderr = open(os.devnull, 'w')
+
+    # Filter out specific warnings
+    warnings.filterwarnings("ignore", message="DataFrame is highly fragmented", category=UserWarning)
     from Broker.models import Stock
     portfolio_shares = pd.read_excel(staticfiles_storage.path('portfolio shares.xlsx'),header=0)
     sectors = list(portfolio_shares['Sector'].unique())
