@@ -1,5 +1,5 @@
 import logging
-logging.disable(logging.CRITICAL)
+# logging.disable(logging.CRITICAL)
 import  scipy.signal.signaltools
 
 def _centered(arr, newsize):
