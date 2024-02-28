@@ -1,4 +1,4 @@
-import logging
+# import logging
 # logging.disable(logging.CRITICAL)
 import  scipy.signal.signaltools
 
@@ -27,8 +27,8 @@ import pytz
 
 import sys
 import warnings
-import tensorflow as tf
-tf.get_logger().setLevel('ERROR')
+# import tensorflow as tf
+# tf.get_logger().setLevel('ERROR')
 from keras.models import load_model
 
 def get_data(symbol,start,end):

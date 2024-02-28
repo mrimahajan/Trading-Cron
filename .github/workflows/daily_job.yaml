@@ -2,7 +2,7 @@ name: Daily Job
 
 on:
   schedule:
-    - cron: "45 2 * * *" # Runs at midnight 1 am every day
+    - cron: "30 3 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
