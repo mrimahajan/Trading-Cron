@@ -206,7 +206,7 @@ def run_daily():
     # sys.stderr = open(os.devnull, 'w')
 
     # Filter out specific warnings
-    warnings.filterwarnings("ignore", message="DataFrame is highly fragmented", category=UserWarning)
+    warnings.filterwarnings("ignore")
     from Broker.models import Stock
     portfolio_shares = pd.read_excel(staticfiles_storage.path('portfolio shares.xlsx'),header=0)
     sectors = list(portfolio_shares['Sector'].unique())
