@@ -1,6 +1,6 @@
-import  scipy.signal.signaltools
 import logging
 logging.disable(logging.CRITICAL)
+import  scipy.signal.signaltools
 
 def _centered(arr, newsize):
     # Return the center newsize portion of the array.
@@ -16,7 +16,6 @@ import os
 import pandas as pd
 from django.contrib.staticfiles.storage import staticfiles_storage
 import django
-from keras.models import load_model
 import numpy as np 
 import yfinance as yf
 from datetime import date
@@ -30,6 +29,7 @@ import sys
 import warnings
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
+from keras.models import load_model
 
 def get_data(symbol,start,end):
     try:
