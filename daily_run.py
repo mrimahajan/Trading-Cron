@@ -202,8 +202,8 @@ def run_daily():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
     django.setup() 
     # Redirect stdout and stderr to a null device to discard any output
-    sys.stdout = open(os.devnull, 'w')
-    sys.stderr = open(os.devnull, 'w')
+    # sys.stdout = open(os.devnull, 'w')
+    # sys.stderr = open(os.devnull, 'w')
 
     # Filter out specific warnings
     warnings.filterwarnings("ignore", message="DataFrame is highly fragmented", category=UserWarning)
