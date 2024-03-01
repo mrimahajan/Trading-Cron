@@ -30,6 +30,7 @@ import warnings
 # import tensorflow as tf
 # tf.get_logger().setLevel('ERROR')
 from keras.models import load_model
+from keras.optimizers import Adam
 
 def get_data(symbol,start,end):
     try:
@@ -252,6 +253,7 @@ def run_daily():
                 train_df[col] = train_df[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
             train_dates = sorted(train_df['Date'].unique())
             model = load_model(staticfiles_storage.path(f'Models/Regression/{sector}_model.h5'))
+            model.compile(loss='mean_squared_error',optimizer=Adam(learning_rate=0.001))
             for train_date in train_dates:
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
                 y = train_df.loc[(train_df['Date']==train_date),'future_return']
@@ -274,6 +276,7 @@ def run_daily():
                 train_df[col] = train_df[col].apply(lambda x : max(-1,x) if x < 0 else min(x,1))
             train_dates = sorted(train_df['Date'].unique())
             model = load_model(staticfiles_storage.path(f'Models/Classification/{sector}_model.h5'))
+            model.compile(loss='binary_crossentropy',optimizer=Adam(learning_rate=0.001))
             for train_date in train_dates:
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
                 y = train_df.loc[(train_df['Date']==train_date),'lift']
