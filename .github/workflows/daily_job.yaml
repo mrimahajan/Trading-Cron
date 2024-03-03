@@ -2,7 +2,7 @@ name: Daily Job
 
 on:
   schedule:
-    - cron: "0 6 * * *" # Runs at midnight 1 am every day
+    - cron: "0 8 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
@@ -44,7 +44,7 @@ jobs:
 
       - name: Authenticate with GitHub
         run: |
-          git remote set-url origin https://mrimahajan:${{ secrets.DEPLOY_TRADING }}@github.com/mrimahajan/Trading-Cron.git
+          git remote set-url origin https://mrimahajan:${{ secrets.deploy_trading }}@github.com/mrimahajan/Trading-Cron.git
           git add .
           git commit -m "Update data (automated action)"
           git push
