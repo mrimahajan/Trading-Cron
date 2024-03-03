@@ -2,7 +2,7 @@ name: Daily Job
 
 on:
   schedule:
-    - cron: "30 9 * * *" # Runs at midnight 1 am every day
+    - cron: "0 11 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
@@ -41,6 +41,9 @@ jobs:
 
       - name: Install Git
         run: sudo apt-get install git -y # Ensure Git is installed
+
+      - name: Check secret value
+        run: echo ${{ secrets.DEPLOY_TRADING }}
 
       - name: Authenticate with GitHub
         run: |
