@@ -2,7 +2,7 @@ name: Daily Job
 
 on:
   schedule:
-    - cron: "0 17 * * *" # Runs at midnight 1 am every day
+    - cron: "0 19 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
@@ -10,6 +10,8 @@ env:
 jobs:
   run_code:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
