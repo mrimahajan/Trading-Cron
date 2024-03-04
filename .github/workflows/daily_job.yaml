@@ -2,7 +2,7 @@ name: Daily Job
 
 on:
   schedule:
-    - cron: "0 4 * * *" # Runs at midnight 1 am every day
+    - cron: "0 5 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
@@ -31,10 +31,6 @@ jobs:
       - name: Run Python script
         run: python daily_run.py
 
-      # Add a step to commit and push changes
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Set up Git
         run: |
           git config --global user.email "mahajanmrinal2013@gmail.com"
@@ -58,7 +54,7 @@ jobs:
           git status
       - name: commit changes
         run: |
-          git commit -m "Update data (automated action)"
+          git commit -m "Update data"
       - name: push changes
         run: |
           git push
