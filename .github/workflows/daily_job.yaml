@@ -2,7 +2,7 @@ name: Daily Job
 
 on:
   schedule:
-    - cron: "0 19 * * *" # Runs at midnight 1 am every day
+    - cron: "0 2 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
@@ -20,8 +20,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          ref: main # Specify the branch
-          path: ./ # Specify the path where files will be checked out
           python-version: "3.x" # Choose your Python version
 
       - name: Install dependencies
@@ -52,8 +50,15 @@ jobs:
       - name: Authenticate with GitHub
         run: |
           git remote set-url origin https://mrimahajan:${{ secrets.deploy_trading }}@github.com/mrimahajan/Trading-Cron.git
-      - name: Push to repository
+      - name: Stage Changes
         run: |
           git add .
+      - name: check status
+        run: |
+          git status
+      - name: commit changes
+        run: |
           git commit -m "Update data (automated action)"
+      - name: push changes
+        run: |
           git push
