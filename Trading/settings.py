@@ -38,12 +38,18 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 INSTALLED_APPS = [
     'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django_browser_reload',
     'django.contrib.staticfiles',
+    'Accounts',
     'Broker',
 ]
 
@@ -55,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 
 ]
 
@@ -82,16 +90,34 @@ WSGI_APPLICATION = 'Trading.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'swinger_data',
+#         'USER': 'swinger_data_user',
+#         'PASSWORD': 'dy9OZicShpuxrZTvhE26bBsN1skH6e2t',
+#         'HOST': 'dpg-cndh2ida73kc73b6ut9g-a.singapore-postgres.render.com',
+#         'PORT': '',  # You can leave it empty if using the default PostgreSQL port
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'swinger_data',
-        'USER': 'swinger_data_user',
-        'PASSWORD': 'dy9OZicShpuxrZTvhE26bBsN1skH6e2t',
-        'HOST': 'dpg-cndh2ida73kc73b6ut9g-a.singapore-postgres.render.com',
+        'NAME': 'swinger_test2',
+        'USER': 'swinger_tester',
+        'PASSWORD': 'lK0RYznFW5Jfz8RRk9QUE6c1QdkhvKpC',
+        'HOST': 'dpg-cnm39smv3ddc73fk1u30-a.singapore-postgres.render.com',
         'PORT': '',  # You can leave it empty if using the default PostgreSQL port
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 
 # Password validation
@@ -114,8 +140,25 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend'
 )
 
+SITE_ID = 2
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+LOGIN_REDIRECT_URL = '/userpage'
+LOGOUT_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

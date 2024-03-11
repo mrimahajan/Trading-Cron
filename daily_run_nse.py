@@ -38,14 +38,14 @@ def get_data(symbol,start,end):
         df['Symbol'] = symbol
         df = df[['Symbol','Open','High','Low','Close','Adj Close','Volume']]
         if(df.shape[0] > 0):
-            df.to_csv(staticfiles_storage.path(f'Data/{symbol}.csv'))
+            df.to_csv(staticfiles_storage.path(f'NSE/Data/{symbol}.csv'))
     except:
         print(f'Data not found for {symbol}')
 
 
 
 def create_variables(symbol):
-    df = pd.read_csv(staticfiles_storage.path(f'Data/{symbol}.csv'),header=0)
+    df = pd.read_csv(staticfiles_storage.path(f'NSE/Data/{symbol}.csv'),header=0)
     df = df.sort_values(by='Date')
     df = df[(df['Volume']!=0) & (df['Volume'].notnull())]
     df['future_return'] = np.log(df['Adj Close'].shift(-1)/df['Adj Close'])
@@ -110,11 +110,11 @@ def create_variables(symbol):
              'TR_sum','PDM_sum','NDM_sum','PDI','NDI','DX','Average Gain',
              'Average Loss','RS','Average Volume Gain','Average Volume Loss','RSV'],axis=1,inplace=True)
     df.dropna(inplace=True)
-    df.to_csv(staticfiles_storage.path(f'Train/{symbol}.csv'),index=False)
+    df.to_csv(staticfiles_storage.path(f'NSE/Train/{symbol}.csv'),index=False)
 
 
 def pred_variables(symbol,last_trade_date):
-    df = pd.read_csv(staticfiles_storage.path(f'Data/{symbol}.csv'),header=0)
+    df = pd.read_csv(staticfiles_storage.path(f'NSE/Data/{symbol}.csv'),header=0)
     df = df.sort_values(by='Date')
     df = df[(df['Volume']!=0) & (df['Volume'].notnull())]
     df['future_return'] = np.log(df['Adj Close'].shift(-1)/df['Adj Close'])
@@ -179,7 +179,7 @@ def pred_variables(symbol,last_trade_date):
              'TR_sum','PDM_sum','NDM_sum','PDI','NDI','DX','Average Gain',
              'Average Loss','RS','Average Volume Gain','Average Volume Loss','RSV'],axis=1,inplace=True)
     df = df[df['Date']==last_trade_date]
-    df.to_csv(staticfiles_storage.path(f'Test/{symbol}.csv'),index=False)
+    df.to_csv(staticfiles_storage.path(f'NSE/Test/{symbol}.csv'),index=False)
 
 
 
@@ -202,25 +202,30 @@ def get_equation(model):
 def run_daily():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
     django.setup() 
-    # Redirect stdout and stderr to a null device to discard any output
-    # sys.stdout = open(os.devnull, 'w')
-    # sys.stderr = open(os.devnull, 'w')
-
-    # Filter out specific warnings
-    warnings.filterwarnings("ignore")
-    from Broker.models import Stock
-    portfolio_shares = pd.read_excel(staticfiles_storage.path('portfolio shares.xlsx'),header=0)
+    from Broker.models import Stock,Exchange
+    try:
+        if Exchange.objects.filter(Name="NSE").exists():
+            pass
+        else:
+            market = Exchange(Name="NSE",Extension="NS",Currency="INR",Country="IND",Frac=0)
+            market.save()
+    except Exception as e:
+        print(f"Error creating Exchange instance: {e}")
+        exchange = Exchange(Name="NSE",Currency="INR",Country="IND",Frac=0)
+        exchange.save()
+    market = Exchange.objects.get(Name="NSE")
+    portfolio_shares = pd.read_excel(staticfiles_storage.path('NSE/portfolio shares.xlsx'),header=0)
     sectors = list(portfolio_shares['Sector'].unique())
     shares = list(portfolio_shares['Symbol'])
     sector_symbol_mapping = {sector : [share for share in list(portfolio_shares.loc[portfolio_shares['Sector']==sector,'Symbol'])]
                         for sector in sectors}
     timezone = pytz.timezone('Asia/Kolkata')
     end = datetime.datetime.now(timezone).date()
-    last_run_date = pickle.load(open(staticfiles_storage.path('last_run_date.pkl'),'rb'))
+    last_run_date = pickle.load(open(staticfiles_storage.path('NSE/last_run_date.pkl'),'rb'))
     if (end > last_run_date):
         for sector in sectors:
-            reg_eqn = pd.read_excel(staticfiles_storage.path(f'Models/Regression/Equation/{sector}.xlsx'),header=0)
-            class_eqn = pd.read_excel(staticfiles_storage.path(f'Models/Classification/Equation/{sector}.xlsx'),header=0)
+            reg_eqn = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),header=0)
+            class_eqn = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Classification/Equation/{sector}.xlsx'),header=0)
             reg_eqn.sort_values(by='Date')
             class_eqn.sort_values(by='Date')
             reg_last_date = list(reg_eqn['Date'])[-1]
@@ -233,26 +238,26 @@ def run_daily():
         for share in shares:
             try:
                 create_variables(share)
-                data = pd.read_csv(staticfiles_storage.path(staticfiles_storage.path(f'Data/{share}.csv')),header=0)
+                data = pd.read_csv(staticfiles_storage.path(staticfiles_storage.path(f'NSE/Data/{share}.csv')),header=0)
                 data = data.sort_values(by='Date')
                 last_trade_date = list(data['Date'])[-1]
                 pred_variables(share,last_trade_date)
             except:
                 pass
 
-        input_cols_df = pd.read_excel(staticfiles_storage.path('input_cols.xlsx'),header=0)
+        input_cols_df = pd.read_excel(staticfiles_storage.path('NSE/input_cols.xlsx'),header=0)
         input_cols = list(input_cols_df['Inputs'])
         for sector in sectors:
-            equation = pd.read_excel(staticfiles_storage.path(f'Models/Regression/Equation/{sector}.xlsx'),header=0)
+            equation = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),header=0)
             equation.sort_values(by='Date',inplace=True)
             last_train_date = list(equation['Date'])[-1]
-            train_df = pd.concat([pd.read_csv(staticfiles_storage.path(f'Train/{share}.csv'),header=0) for share in
+            train_df = pd.concat([pd.read_csv(staticfiles_storage.path(f'NSE/Train/{share}.csv'),header=0) for share in
                             sector_symbol_mapping[sector]],axis=0)
             train_df = train_df[train_df['Date']>str(last_train_date)]
             for col in input_cols:
                 train_df[col] = train_df[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
             train_dates = sorted(train_df['Date'].unique())
-            model = load_model(staticfiles_storage.path(f'Models/Regression/{sector}_model.h5'))
+            model = load_model(staticfiles_storage.path(f'NSE/Models/Regression/{sector}_model.h5'))
             model.compile(loss='mean_squared_error',optimizer=Adam(learning_rate=0.001))
             for train_date in train_dates:
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
@@ -260,22 +265,22 @@ def run_daily():
                 if x.shape[0] >0 :
                     model.fit(x,y,epochs=1000,verbose=0)
             if len(train_dates) > 0:
-                model.save(staticfiles_storage.path(f'Models/Regression/{sector}_model.h5'))
+                model.save(staticfiles_storage.path(f'NSE/Models/Regression/{sector}_model.h5'))
                 equation_new = get_equation(model)
                 equation_df = pd.DataFrame([[str(train_dates[-1])]+equation_new],columns=['Date']+input_cols+['intercept'])
-                equation_df.to_excel(staticfiles_storage.path(f'Models/Regression/Equation/{sector}.xlsx'),index=False)
+                equation_df.to_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),index=False)
         
         for sector in sectors:
-            equation = pd.read_excel(staticfiles_storage.path(f'Models/Classification/Equation/{sector}.xlsx'),header=0)
+            equation = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Classification/Equation/{sector}.xlsx'),header=0)
             equation.sort_values(by='Date',inplace=True)
             last_train_date = list(equation['Date'])[-1]
-            train_df = pd.concat([pd.read_csv(staticfiles_storage.path(f'Train/{share}.csv'),header=0) for share in
+            train_df = pd.concat([pd.read_csv(staticfiles_storage.path(f'NSE/Train/{share}.csv'),header=0) for share in
                             sector_symbol_mapping[sector]],axis=0)
             train_df = train_df[train_df['Date']>str(last_train_date)]
             for col in input_cols:
                 train_df[col] = train_df[col].apply(lambda x : max(-1,x) if x < 0 else min(x,1))
             train_dates = sorted(train_df['Date'].unique())
-            model = load_model(staticfiles_storage.path(f'Models/Classification/{sector}_model.h5'))
+            model = load_model(staticfiles_storage.path(f'NSE/Models/Classification/{sector}_model.h5'))
             model.compile(loss='binary_crossentropy',optimizer=Adam(learning_rate=0.001))
             for train_date in train_dates:
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
@@ -284,17 +289,17 @@ def run_daily():
                     model.fit(x,y,epochs=1000,verbose=0)
             
             if len(train_dates) > 0:
-                model.save(staticfiles_storage.path(f'Models/Classification/{sector}_model.h5'))
+                model.save(staticfiles_storage.path(f'NSE/Models/Classification/{sector}_model.h5'))
                 equation_new = get_equation(model)
                 equation_df = pd.DataFrame([[str(train_dates[-1])]+equation_new],columns=['Date']+input_cols+['intercept'])
-                equation_df.to_excel(staticfiles_storage.path(f'Models/Classification/Equation/{sector}.xlsx'),index=False)
+                equation_df.to_excel(staticfiles_storage.path(f'NSE/Models/Classification/Equation/{sector}.xlsx'),index=False)
         
         
         for sector in sectors:
-            model_reg = load_model(staticfiles_storage.path(f'Models/Regression/{sector}_model.h5'))
-            model_class = load_model(staticfiles_storage.path(f'Models/Classification/{sector}_model.h5'))
-            reg_eqn = pd.read_excel(staticfiles_storage.path(f'Models/Regression/Equation/{sector}.xlsx'),header=0)
-            class_eqn = pd.read_excel(staticfiles_storage.path(f'Models/Classification/Equation/{sector}.xlsx'),header=0)
+            model_reg = load_model(staticfiles_storage.path(f'NSE/Models/Regression/{sector}_model.h5'))
+            model_class = load_model(staticfiles_storage.path(f'NSE/Models/Classification/{sector}_model.h5'))
+            reg_eqn = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),header=0)
+            class_eqn = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Classification/Equation/{sector}.xlsx'),header=0)
             reg_eqn.sort_values(by='Date',inplace=True)
             class_eqn.sort_values(by='Date',inplace=True)
             last_reg_date = list(reg_eqn['Date'])[-1]
@@ -308,59 +313,82 @@ def run_daily():
             volume_cols = list(input_cols_df.loc[input_cols_df['Type']=='Volume','Inputs'])
             voltality_cols = list(input_cols_df.loc[input_cols_df['Type']=='Voltality','Inputs'])
             for share in sector_symbol_mapping[sector]:
-                try:
-                    pred = pd.read_csv(staticfiles_storage.path(f'Test/{share}.csv'),header=0)
-                    for col in input_cols:
-                        pred[col] = pred[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
-                    company = portfolio_shares.loc[portfolio_shares['Symbol']==share,'Company'].values[0]
-                    cap = portfolio_shares.loc[portfolio_shares['Symbol']==share,'CAP'].values[0]
-                    eod_price = pred.loc[0,'Close']
-                    expected_price = np.exp(model_reg.predict(pred[input_cols])[0])*eod_price
-                    net_return = np.round((np.exp(model_reg.predict(pred[input_cols])[0]) - 1)*100,6)
-                    risk = pred.loc[0,'Voltality5']*100
-                    probability = np.round(model_class.predict(pred[input_cols])[0]*100,2)
-                    market_reg = np.exp(reg_eqn.loc[0,'intercept'])
-                    momentum_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,momentum_cols])*np.array(pred.loc[0,momentum_cols])))
-                    reversion_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,reversion_cols])*np.array(pred.loc[0,reversion_cols])))
-                    volume_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,volume_cols])*np.array(pred.loc[0,volume_cols])))
-                    voltality_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,voltality_cols])*np.array(pred.loc[0,voltality_cols])))
-                    market_class = class_eqn.loc[0,'intercept']
-                    momentum_class = np.sum(np.array(class_eqn.loc[0,momentum_cols])*np.array(pred.loc[0,momentum_cols]))
-                    reversion_class = np.sum(np.array(class_eqn.loc[0,reversion_cols])*np.array(pred.loc[0,reversion_cols]))
-                    volume_class = np.sum(np.array(class_eqn.loc[0,volume_cols])*np.array(pred.loc[0,volume_cols]))
-                    voltality_class = np.sum(np.array(class_eqn.loc[0,voltality_cols])*np.array(pred.loc[0,voltality_cols]))
-                    if Stock.objects.filter(Symbol=share).exists():
-                        stock = Stock.objects.get(Symbol=share)
-                        stock.Sector = sector 
-                        stock.Cap = cap
-                        stock.Company = company
-                        stock.CLS_Price = eod_price
-                        stock.EOD_Price = eod_price
-                        stock.Expected_Price = expected_price
-                        stock.net_return = net_return 
-                        stock.risk = risk
-                        stock.probability = probability
-                        stock.market_contri_reg = market_reg
-                        stock.momentum_contri_reg = momentum_reg
-                        stock.mean_reversion_contri_reg = reversion_reg
-                        stock.voltality_contri_reg = voltality_reg
-                        stock.volume_contri_reg = volume_reg
-                        stock.market_contri_class = market_class
-                        stock.momentum_contri_class = momentum_class
-                        stock.mean_reversion_contri_class = reversion_class
-                        stock.voltality_contri_class = voltality_class
-                        stock.volume_contri_class = volume_class
-                        stock.save()
-                    else:
-                        stock = Stock(Sector=sector,Company=company,Cap=cap,Symbol=share,CLS_Price=eod_price,EOD_Price=eod_price,Expected_Price=expected_price,
-                                        net_return=net_return,risk=risk,probability=probability,market_contri_reg=market_reg,momentum_contri_reg=momentum_reg,
-                                        mean_reversion_contri_reg=reversion_reg,voltality_contri_reg=voltality_reg,
-                                        volume_contri_reg=volume_reg,market_contri_class=market_class,
-                                        momentum_contri_class=momentum_class,mean_reversion_contri_class=reversion_class,
-                                        voltality_contri_class=voltality_class,volume_contri_class=volume_class)
-                        stock.save()
-                except:
-                    pass
-        pickle.dump(end,open(staticfiles_storage.path('last_run_date.pkl'),'wb'))
+                pred = pd.read_csv(staticfiles_storage.path(f'NSE/Test/{share}.csv'),header=0)
+                for col in input_cols:
+                    pred[col] = pred[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
+                company = portfolio_shares.loc[portfolio_shares['Symbol']==share,'Company'].values[0]
+                display = portfolio_shares.loc[portfolio_shares['Symbol']==share,'Display'].values[0]
+                cap = portfolio_shares.loc[portfolio_shares['Symbol']==share,'CAP'].values[0]
+                eod_price = pred.loc[0,'Close']
+                risk = pred.loc[0,'Voltality5']*100
+                probability = np.round(model_class.predict(pred[input_cols])[0]*100,2)
+                market_reg = np.exp(reg_eqn.loc[0,'intercept'])
+                momentum_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,momentum_cols])*np.array(pred.loc[0,momentum_cols])))
+                reversion_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,reversion_cols])*np.array(pred.loc[0,reversion_cols])))
+                volume_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,volume_cols])*np.array(pred.loc[0,volume_cols])))
+                voltality_reg = np.exp(np.sum(np.array(reg_eqn.loc[0,voltality_cols])*np.array(pred.loc[0,voltality_cols])))
+                market_class = class_eqn.loc[0,'intercept']
+                momentum_class = np.sum(np.array(class_eqn.loc[0,momentum_cols])*np.array(pred.loc[0,momentum_cols]))
+                reversion_class = np.sum(np.array(class_eqn.loc[0,reversion_cols])*np.array(pred.loc[0,reversion_cols]))
+                volume_class = np.sum(np.array(class_eqn.loc[0,volume_cols])*np.array(pred.loc[0,volume_cols]))
+                voltality_class = np.sum(np.array(class_eqn.loc[0,voltality_cols])*np.array(pred.loc[0,voltality_cols]))
+                expected_prices = []
+                reg_prediction = model_reg.predict(pred[input_cols])[0]
+                expected_price = np.exp(reg_prediction)*eod_price
+                expected_prices.append(expected_price)
+                for i in range(1,25):
+                    for j in range(25,1,-1):
+                        pred.loc[0,f'log_return_{j}'] = pred.loc[0,f'log_return_{j-1}']
+                        pred.loc[0,f'Volume_Chg{j}'] = pred.loc[0,f'Volume_Chg{j-1}']
+                    pred.loc[0,'log_return_1'] = reg_prediction
+                    pred.loc[0,'Volume_Chg1'] = 0
+                    for k in range(5,30,5):
+                        pred.loc[0,f'Voltality{k}'] = np.std(np.array([pred.loc[0,f'log_return_{l}'] for l in range(1,k+1)]))
+                        pred.loc[0,f'Volume_chg_Voltality{k}'] = np.std(np.array([pred.loc[0,f'Volume_Chg{l}'] for l in range(1,k+1)]))
+                    reg_prediction = model_reg.predict(pred[input_cols])[0]
+                    expected_price = np.exp(reg_prediction)*expected_prices[i-1]
+                    expected_prices.append(expected_price)
+                #net_return = np.round((np.exp(model_reg.predict(pred[input_cols])[0]) - 1)*100,6)
+                net_return = np.round((expected_prices[0]/eod_price-1)*100,6) 
+                
+                if Stock.objects.filter(Symbol=share+".NS").exists():
+                    print(f'starting process from {share}')
+                    stock = Stock.objects.get(Symbol=share+".NS")
+                    stock.Exchange = market
+                    stock.Display = display
+                    stock.Sector = sector 
+                    stock.Cap = cap
+                    stock.Company = company
+                    stock.CLS_Price = eod_price
+                    stock.EOD_Price = eod_price
+                    stock.Expected_Price = expected_prices
+                    stock.net_return = net_return 
+                    stock.risk = risk
+                    stock.probability = probability
+                    stock.market_contri_reg = market_reg
+                    stock.momentum_contri_reg = momentum_reg
+                    stock.mean_reversion_contri_reg = reversion_reg
+                    stock.voltality_contri_reg = voltality_reg
+                    stock.volume_contri_reg = volume_reg
+                    stock.market_contri_class = market_class
+                    stock.momentum_contri_class = momentum_class
+                    stock.mean_reversion_contri_class = reversion_class
+                    stock.voltality_contri_class = voltality_class
+                    stock.volume_contri_class = volume_class
+                    print(f'{share} has closed price {stock.CLS_Price}')
+                    stock.save()
+                    print(f'{share} is being saved at {eod_price} with actual value {stock.CLS_Price}')
+                else:
+                    print(f'starting process from {share}')
+                    stock = Stock(Exchange=market,Sector=sector,Company=company,Cap=cap,Symbol=share+".NS",Display=display,CLS_Price=eod_price,EOD_Price=eod_price,Expected_Price=expected_prices,
+                                    net_return=net_return,risk=risk,probability=probability,market_contri_reg=market_reg,momentum_contri_reg=momentum_reg,
+                                    mean_reversion_contri_reg=reversion_reg,voltality_contri_reg=voltality_reg,
+                                    volume_contri_reg=volume_reg,market_contri_class=market_class,
+                                    momentum_contri_class=momentum_class,mean_reversion_contri_class=reversion_class,
+                                    voltality_contri_class=voltality_class,volume_contri_class=volume_class)
+                    print(f'{share} has closed price {stock.CLS_Price}')
+                    stock.save()
+                    print(f'{share} is being created at {eod_price} with actual value {stock.CLS_Price}')
+        pickle.dump(end,open(staticfiles_storage.path('NSE/last_run_date.pkl'),'wb'))
 
 run_daily()
