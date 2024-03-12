@@ -202,6 +202,11 @@ def get_equation(model):
 def run_daily():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
     django.setup() 
+    # Redirect stdout and stderr to a null device to discard any output
+    # sys.stdout = open(os.devnull, 'w')
+    # sys.stderr = open(os.devnull, 'w')
+
+    # Filter out specific warnings
     from Broker.models import Stock,Exchange
     try:
         if Exchange.objects.filter(Name="NSE").exists():
@@ -214,6 +219,8 @@ def run_daily():
         exchange = Exchange(Name="NSE",Currency="INR",Country="IND",Frac=0)
         exchange.save()
     market = Exchange.objects.get(Name="NSE")
+    warnings.filterwarnings("ignore")
+    from Broker.models import Stock
     portfolio_shares = pd.read_excel(staticfiles_storage.path('NSE/portfolio shares.xlsx'),header=0)
     sectors = list(portfolio_shares['Sector'].unique())
     shares = list(portfolio_shares['Symbol'])
@@ -352,7 +359,7 @@ def run_daily():
                 net_return = np.round((expected_prices[0]/eod_price-1)*100,6) 
                 
                 if Stock.objects.filter(Symbol=share+".NS").exists():
-                    print(f'starting process from {share}')
+                    # print(f'starting process from {share}')
                     stock = Stock.objects.get(Symbol=share+".NS")
                     stock.Exchange = market
                     stock.Display = display
@@ -375,20 +382,20 @@ def run_daily():
                     stock.mean_reversion_contri_class = reversion_class
                     stock.voltality_contri_class = voltality_class
                     stock.volume_contri_class = volume_class
-                    print(f'{share} has closed price {stock.CLS_Price}')
+                    # print(f'{share} has closed price {stock.CLS_Price}')
                     stock.save()
-                    print(f'{share} is being saved at {eod_price} with actual value {stock.CLS_Price}')
+                    # print(f'{share} is being saved at {eod_price} with actual value {stock.CLS_Price}')
                 else:
-                    print(f'starting process from {share}')
+                    # print(f'starting process from {share}')
                     stock = Stock(Exchange=market,Sector=sector,Company=company,Cap=cap,Symbol=share+".NS",Display=display,CLS_Price=eod_price,EOD_Price=eod_price,Expected_Price=expected_prices,
                                     net_return=net_return,risk=risk,probability=probability,market_contri_reg=market_reg,momentum_contri_reg=momentum_reg,
                                     mean_reversion_contri_reg=reversion_reg,voltality_contri_reg=voltality_reg,
                                     volume_contri_reg=volume_reg,market_contri_class=market_class,
                                     momentum_contri_class=momentum_class,mean_reversion_contri_class=reversion_class,
                                     voltality_contri_class=voltality_class,volume_contri_class=volume_class)
-                    print(f'{share} has closed price {stock.CLS_Price}')
+                    # print(f'{share} has closed price {stock.CLS_Price}')
                     stock.save()
-                    print(f'{share} is being created at {eod_price} with actual value {stock.CLS_Price}')
+                    # print(f'{share} is being created at {eod_price} with actual value {stock.CLS_Price}')
         pickle.dump(end,open(staticfiles_storage.path('NSE/last_run_date.pkl'),'wb'))
 
 run_daily()
