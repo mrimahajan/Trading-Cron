@@ -38,10 +38,6 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 INSTALLED_APPS = [
     'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django_browser_reload',
     'django.contrib.staticfiles',
-    'Accounts',
     'Broker',
 ]
 
@@ -61,8 +56,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 
 ]
 
