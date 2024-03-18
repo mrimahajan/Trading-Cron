@@ -232,7 +232,7 @@ def run_daily():
     shares = list(portfolio_shares['Symbol'])
     sector_symbol_mapping = {sector : [share for share in list(portfolio_shares.loc[portfolio_shares['Sector']==sector,'Symbol'])]
                         for sector in sectors}
-    timezone = pytz.timezone('ET')
+    timezone = pytz.timezone('America/New_York')
     end = datetime.datetime.now(timezone).date()
     last_run_date = pickle.load(open(staticfiles_storage.path(f'{Name}/last_run_date.pkl'),'rb'))
     if (end > last_run_date):
