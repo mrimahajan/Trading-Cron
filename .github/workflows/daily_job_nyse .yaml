@@ -1,0 +1,60 @@
+name: Daily Job NYSE
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # Runs at midnight 1 am every day
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+
+jobs:
+  run_code:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x" # Choose your Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Add your code execution step here
+      - name: Run Python script
+        run: python daily_run_nyse.py
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "mahajanmrinal2013@gmail.com"
+          git config --global user.name "mrimahajan"
+          git config --global credential.helper store  # Store credentials for subsequent steps
+
+      - name: Install Git
+        run: sudo apt-get install git -y # Ensure Git is installed
+
+      - name: Check secret value
+        run: echo ${{ secrets.deploy_trading }}
+
+      - name: Authenticate with GitHub
+        run: |
+          git remote set-url origin https://mrimahajan:${{ secrets.deploy_trading }}@github.com/mrimahajan/Trading-Cron.git
+      - name: Stage Changes
+        run: |
+          git add .
+      - name: check status
+        run: |
+          git status
+      - name: commit changes
+        run: |
+          git commit -m "Update data"
+      - name: push changes
+        run: |
+          git push --force origin main
