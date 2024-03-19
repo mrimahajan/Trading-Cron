@@ -269,6 +269,7 @@ def run_daily():
             train_df = train_df[train_df['Date']>str(last_train_date)]
             for col in input_cols:
                 train_df[col] = train_df[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
+            train_df = train_df.fillna(0)
             train_dates = sorted(train_df['Date'].unique())
             model = load_model(staticfiles_storage.path(f'{Name}/Models/Regression/{sector}_model.h5'))
             model.compile(loss='mean_squared_error',optimizer=Adam(learning_rate=0.001))
@@ -295,6 +296,7 @@ def run_daily():
             train_df = train_df[train_df['Date']>str(last_train_date)]
             for col in input_cols:
                 train_df[col] = train_df[col].apply(lambda x : max(-1,x) if x < 0 else min(x,1))
+            train_df = train_df.fillna(0)
             train_dates = sorted(train_df['Date'].unique())
             model = load_model(staticfiles_storage.path(f'{Name}/Models/Classification/{sector}_model.h5'))
             model.compile(loss='binary_crossentropy',optimizer=Adam(learning_rate=0.001))
@@ -336,6 +338,7 @@ def run_daily():
                     pred = pd.read_csv(staticfiles_storage.path(f'{Name}/Test/{share}.csv'),header=0)
                     for col in input_cols:
                         pred[col] = pred[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
+                    pred = pred.fillna(0)
                     company = portfolio_shares.loc[portfolio_shares['Symbol']==share,'Company'].values[0]
                     display = portfolio_shares.loc[portfolio_shares['Symbol']==share,'Display'].values[0]
                     cap = portfolio_shares.loc[portfolio_shares['Symbol']==share,'CAP'].values[0]
