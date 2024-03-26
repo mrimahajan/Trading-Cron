@@ -353,11 +353,11 @@ def run_daily():
                     pred['Prev_Volume0'] = pred['Volume']
                     for j in range(1,26):
                         pred[f'Prev_Price{j}'] = pred[f'Prev_Price{j-1}']/np.exp(pred[f'log_return_{j}'])
-                        pred[f'Gain{j}'] = pred[[f'Prev_Price{j-1}',f'Prev_Price{j}']].apply(lambda x: max(x[0]-x[1],0))
-                        pred[f'Loss{j}'] = -pred[[f'Prev_Price{j-1}',f'Prev_Price{j}']].apply(lambda x: min(x[0]-x[1],0))
+                        pred[f'Gain{j}'] = pred[[f'Prev_Price{j-1}',f'Prev_Price{j}']].apply(lambda x: max(x[0]-x[1],0),axis=1)
+                        pred[f'Loss{j}'] = -pred[[f'Prev_Price{j-1}',f'Prev_Price{j}']].apply(lambda x: min(x[0]-x[1],0),axis=1)
                         pred[f'Prev_Volume{j}'] = pred[f'Prev_Volume{j-1}']/np.exp(pred[f'Volume_Chg{j}'])
-                        pred[f'Vol_Gain{j}'] = pred[[f'Prev_Volume{j-1}',f'Prev_Volume{j}']].apply(lambda x: max(x[0]-x[1],0))
-                        pred[f'Vol_Loss{j}'] = -pred[[f'Prev_Volume{j-1}',f'Prev_Volume{j}']].apply(lambda x: min(x[0]-x[1],0))
+                        pred[f'Vol_Gain{j}'] = pred[[f'Prev_Volume{j-1}',f'Prev_Volume{j}']].apply(lambda x: max(x[0]-x[1],0),axis=1)
+                        pred[f'Vol_Loss{j}'] = -pred[[f'Prev_Volume{j-1}',f'Prev_Volume{j}']].apply(lambda x: min(x[0]-x[1],0),axis=1)
                     for k in range(5,30,5):
                         pred.loc[0,f'Avg_Gain{k}'] = np.mean(np.array([pred.loc[0,f'Gain{l}'] for l in range(1,k+1)]))
                         pred.loc[0,f'Avg_Loss{k}'] = np.mean(np.array([pred.loc[0,f'Loss{l}'] for l in range(1,k+1)]))
