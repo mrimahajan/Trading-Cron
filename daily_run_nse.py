@@ -289,7 +289,7 @@ def run_daily():
             for train_date in train_dates:
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
                 y = train_df.loc[(train_df['Date']==train_date),'lift']
-                if x.shape[0] >0 :
+                if x.shape[0] > 0 :
                     model.fit(x,y,epochs=1000,verbose=0)
             
             if len(train_dates) > 0:
@@ -353,11 +353,11 @@ def run_daily():
                     pred['Prev_Volume0'] = pred['Volume']
                     for j in range(1,26):
                         pred[f'Prev_Price{j}'] = pred[f'Prev_Price{j-1}']/np.exp(pred[f'log_return_{j}'])
-                        pred[f'Gain{j}'] = max(pred[f'Prev_Price{j-1}'] - pred[f'Prev_Price{j}'],0)
-                        pred[f'Loss{j}'] = -min(pred[f'Prev_Price{j-1}'] - pred[f'Prev_Price{j}'],0)
+                        pred[f'Gain{j}'] = pred[[f'Prev_Price{j-1}',f'Prev_Price{j}']].apply(lambda x: max(x[0]-x[1],0))
+                        pred[f'Loss{j}'] = -pred[[f'Prev_Price{j-1}',f'Prev_Price{j}']].apply(lambda x: min(x[0]-x[1],0))
                         pred[f'Prev_Volume{j}'] = pred[f'Prev_Volume{j-1}']/np.exp(pred[f'Volume_Chg{j}'])
-                        pred[f'Vol_Gain{j}'] = max(pred[f'Prev_Volume{j-1}'] - pred[f'Prev_Volume{j}'],0)
-                        pred[f'Vol_Loss{j}'] = -min(pred[f'Prev_Volume{j-1}'] - pred[f'Prev_Volume{j}'],0)
+                        pred[f'Vol_Gain{j}'] = pred[[f'Prev_Volume{j-1}',f'Prev_Volume{j}']].apply(lambda x: max(x[0]-x[1],0))
+                        pred[f'Vol_Loss{j}'] = -pred[[f'Prev_Volume{j-1}',f'Prev_Volume{j}']].apply(lambda x: min(x[0]-x[1],0))
                     for k in range(5,30,5):
                         pred.loc[0,f'Avg_Gain{k}'] = np.mean(np.array([pred.loc[0,f'Gain{l}'] for l in range(1,k+1)]))
                         pred.loc[0,f'Avg_Loss{k}'] = np.mean(np.array([pred.loc[0,f'Loss{l}'] for l in range(1,k+1)]))
@@ -378,8 +378,6 @@ def run_daily():
                     for k in range(5,30,5):
                         pred.loc[0,f'Voltality{k}'] = np.std(np.array([pred.loc[0,f'log_return_{l}'] for l in range(1,k+1)]))
                         pred.loc[0,f'Volume_chg_Voltality{k}'] = np.std(np.array([pred.loc[0,f'Volume_Chg{l}'] for l in range(1,k+1)])) 
-
-                    
 
                     for col in input_cols:
                         pred[col] = pred[col].apply(lambda x: max(-1,x) if x < 0 else min(x,1))
