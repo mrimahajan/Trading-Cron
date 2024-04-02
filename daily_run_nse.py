@@ -267,7 +267,10 @@ def run_daily():
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
                 y = train_df.loc[(train_df['Date']==train_date),'future_return']
                 if x.shape[0] >0 :
-                    model.fit(x,y,epochs=1000,verbose=0)
+                    try:
+                        model.fit(x,y,epochs=1000,verbose=0)
+                    except:
+                        pass
             if len(train_dates) > 0:
                 model.save(staticfiles_storage.path(f'NSE/Models/Regression/{sector}_model.h5'))
                 equation_new = get_equation(model)
@@ -290,7 +293,10 @@ def run_daily():
                 x = train_df.loc[(train_df['Date']==train_date),input_cols]
                 y = train_df.loc[(train_df['Date']==train_date),'lift']
                 if x.shape[0] > 0 :
-                    model.fit(x,y,epochs=1000,verbose=0)
+                    try:
+                        model.fit(x,y,epochs=1000,verbose=0)
+                    except:
+                        pass
             
             if len(train_dates) > 0:
                 model.save(staticfiles_storage.path(f'NSE/Models/Classification/{sector}_model.h5'))
