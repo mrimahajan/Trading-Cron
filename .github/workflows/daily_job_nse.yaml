@@ -2,7 +2,7 @@ name: Daily Job NSE
 
 on:
   schedule:
-    - cron: "30 1 * * *" # Runs at midnight 1 am every day
+    - cron: "0 19 * * *" # Runs at midnight 1 am every day
 
 env:
   ACTIONS_RUNNER_DEBUG: true
