@@ -286,6 +286,7 @@ def run_daily():
             train_df = train_df[train_df['Date']>str(last_train_date)]
             for col in input_cols:
                 train_df[col] = train_df[col].apply(lambda x : max(-1,x) if x < 0 else min(x,1))
+            train_df = train_df.fillna(0)
             train_dates = sorted(train_df['Date'].unique())
             model = load_model(staticfiles_storage.path(f'NSE/Models/Classification/{sector}_model.h5'))
             model.compile(loss='binary_crossentropy',optimizer=Adam(learning_rate=0.001))
