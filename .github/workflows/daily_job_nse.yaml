@@ -49,6 +49,7 @@ jobs:
       - name: Stage Changes
         run: |
           git add .
+          git reset Trading/settings.py
       - name: check status
         run: |
           git status
