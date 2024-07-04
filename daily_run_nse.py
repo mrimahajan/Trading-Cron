@@ -226,7 +226,7 @@ def run_daily():
     timezone = pytz.timezone('Asia/Kolkata')
     end = datetime.datetime.now(timezone).date()
     last_run_date = pickle.load(open(staticfiles_storage.path('NSE/last_run_date.pkl'),'rb'))
-    if (end > last_run_date):
+    if not(end > last_run_date):
         for sector in sectors:
             reg_eqn = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),header=0)
             class_eqn = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Classification/Equation/{sector}.xlsx'),header=0)
