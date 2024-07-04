@@ -96,10 +96,10 @@ WSGI_APPLICATION = 'Trading.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'swinger',
-        'USER': 'swinger',
-        'PASSWORD': 'kIOLSBaSknqYBYajMohHq9hSXDYSFg5c',
-        'HOST': 'dpg-cpffb9btg9os73bcs290-a.singapore-postgres.render.com',
+        'NAME': 'swinger_ff6n',
+        'USER': 'swinger_ff6n_user',
+        'PASSWORD': 'k7CEXvDkLvDeSYKJx0AjblErEgevoQt4',
+        'HOST': 'dpg-cq2uo5bqf0us73d7fopg-a.singapore-postgres.render.com',
         'PORT': '',  # You can leave it empty if using the default PostgreSQL port
     }
 }
