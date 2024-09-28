@@ -410,7 +410,11 @@ def run_daily():
                         expected_prices.append(expected_price)
                     #net_return = np.round((np.exp(model_reg.predict(pred[input_cols])[0]) - 1)*100,6)
                     net_return = np.round((expected_prices[0]/eod_price-1)*100,6) 
-                    
+                    trade_days = evaluation.loc[evaluation['Symbol']==share,'Trade Days'].values[0]
+                    correct_reg = evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'].values[0]
+                    correct_class = evaluation.loc[evaluation['Symbol']==share,'Correct Classification Prediction'].values[0]
+                    reg_acc = correct_reg/trade_days
+                    class_acc = correct_class/trade_days
                     if Stock.objects.filter(Symbol=share+".NS").exists():
                         # print(f'starting process from {share}')
                         stock = Stock.objects.get(Symbol=share+".NS")
@@ -435,6 +439,11 @@ def run_daily():
                         stock.mean_reversion_contri_class = reversion_class
                         stock.voltality_contri_class = voltality_class
                         stock.volume_contri_class = volume_class
+                        stock.trade_days = trade_days
+                        stock.correct_reg = correct_reg
+                        stock.correct_class = correct_class
+                        stock.reg_acc = reg_acc
+                        stock.class_acc = class_acc
                         # print(f'{share} has closed price {stock.CLS_Price}')
                         stock.save()
                         # print(f'{share} is being saved at {eod_price} with actual value {stock.CLS_Price}')
@@ -445,7 +454,8 @@ def run_daily():
                                         mean_reversion_contri_reg=reversion_reg,voltality_contri_reg=voltality_reg,
                                         volume_contri_reg=volume_reg,market_contri_class=market_class,
                                         momentum_contri_class=momentum_class,mean_reversion_contri_class=reversion_class,
-                                        voltality_contri_class=voltality_class,volume_contri_class=volume_class)
+                                        voltality_contri_class=voltality_class,volume_contri_class=volume_class,trade_days=trade_days,
+                                    correct_reg=correct_reg,correct_class=correct_class,reg_acc=reg_acc,class_acc=class_acc)
                         # print(f'{share} has closed price {stock.CLS_Price}')
                         stock.save()
                         # print(f'{share} is being created at {eod_price} with actual value {stock.CLS_Price}')
