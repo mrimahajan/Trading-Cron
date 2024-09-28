@@ -228,6 +228,7 @@ def run_daily():
     warnings.filterwarnings("ignore")
     from Broker.models import Stock
     portfolio_shares = pd.read_excel(staticfiles_storage.path(f'{Name}/portfolio shares.xlsx'),header=0)
+    evaluation = pd.read_excel(staticfiles_storage.path(f'{Name}/Evaluation.xlsx'),header=0)
     sectors = list(portfolio_shares['Sector'].unique())
     shares = list(portfolio_shares['Symbol'])
     sector_symbol_mapping = {sector : [share for share in list(portfolio_shares.loc[portfolio_shares['Sector']==sector,'Symbol'])]
@@ -248,15 +249,30 @@ def run_daily():
             start = parsed_date-datetime.timedelta(days=100)
             for share in sector_symbol_mapping[sector]:
                 get_data(share,start=start,end=end)
-        for share in shares:
-            try:
-                create_variables(share)
-                data = pd.read_csv(staticfiles_storage.path(staticfiles_storage.path(f'{Name}/Data/{share}.csv')),header=0)
-                data = data.sort_values(by='Date')
-                last_trade_date = list(data['Date'])[-1]
-                pred_variables(share,last_trade_date)
-            except:
-                pass
+        for sector in sectors:
+            for share in sector_symbol_mapping[sector]:
+                try:
+                    create_variables(share)
+                    data = pd.read_csv(staticfiles_storage.path(staticfiles_storage.path(f'{Name}/Data/{share}.csv')),header=0)
+                    data = data.sort_values(by='Date')
+                    last_trade_date = list(data['Date'])[-1]
+                    last_price = list(data['Close'])[-1]
+                    pred_variables(share,last_trade_date)
+                    try:
+                        if (end-pd.to_datetime(last_trade_date).date()).days == 1:
+                            evaluation.loc[evaluation['Symbol']==share,'Trade Days'] += 1
+                            if Stock.objects.filter(Symbol=share+Extension).exists():
+                                stock = Stock.objects.get(Symbol=share+Extension)
+                                if np.sign(stock.Expected_Price - stock.CLS_Price) == np.sign(last_price - stock.CLS_Price):
+                                    evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'] += 1
+                                if np.sign(stock.Expected_Price - stock.CLS_Price) == np.sign(stock.probability - 50):
+                                    evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'] += 1
+
+                    except:
+                        pass 
+                except:
+                    pass
+        evaluation.to_excel(staticfiles_storage.path(f'{Name}/Evaluation.xlsx'),index=False)
 
         input_cols_df = pd.read_excel(staticfiles_storage.path(f'{Name}/input_cols.xlsx'),header=0)
         input_cols = list(input_cols_df['Inputs'])
