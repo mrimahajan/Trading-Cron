@@ -38,6 +38,11 @@ class Stock(models.Model):
     mean_reversion_contri_class = models.FloatField(null=True)
     voltality_contri_class = models.FloatField(null=True)
     volume_contri_class = models.FloatField(null=True)
+    trade_days = models.IntegerField(null=True)
+    correct_reg = models.IntegerField(null=True)
+    correct_class = models.IntegerField(null=True)
+    reg_acc = models.FloatField(null=True)
+    class_acc = models.FloatField(null=True)
 
     def __str__(self):
         return str(self.Symbol)
