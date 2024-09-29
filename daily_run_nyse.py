@@ -424,8 +424,8 @@ def run_daily():
                     trade_days = evaluation.loc[evaluation['Symbol']==share,'Trade Days'].values[0]
                     correct_reg = evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'].values[0]
                     correct_class = evaluation.loc[evaluation['Symbol']==share,'Correct Classification Prediction'].values[0]
-                    reg_acc = correct_reg/trade_days
-                    class_acc = correct_class/trade_days
+                    reg_acc = np.round(correct_reg/trade_days*100,2)
+                    class_acc = np.round(correct_class/trade_days*100,2)
                     if Stock.objects.filter(Symbol=share+Extension).exists():
                         # print(f'starting process from {share}')
                         stock = Stock.objects.get(Symbol=share+Extension)
