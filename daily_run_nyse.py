@@ -263,7 +263,7 @@ def run_daily():
                             evaluation.loc[evaluation['Symbol']==share,'Trade Days'] += 1
                             if Stock.objects.filter(Symbol=share+Extension).exists():
                                 stock = Stock.objects.get(Symbol=share+Extension)
-                                if np.sign(stock.Expected_Price - stock.CLS_Price) == np.sign(last_price - stock.CLS_Price):
+                                if np.sign(stock.Expected_Price[0] - stock.CLS_Price) == np.sign(last_price - stock.CLS_Price):
                                     evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'] += 1
                                 if np.sign(last_price - stock.CLS_Price) == np.sign(stock.probability - 50):
                                     evaluation.loc[evaluation['Symbol']==share,'Correct Classification Prediction'] += 1
