@@ -11,5 +11,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          pip install django
+
       - name: Run script or command
         run: python update_data_nse.py
