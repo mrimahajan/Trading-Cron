@@ -291,7 +291,7 @@ def run_daily():
                 equation_new = get_equation(model)
                 equation_df = pd.DataFrame([[str(train_dates[-1])]+equation_new],columns=['Date']+input_cols+['intercept'])
                 old_data = pd.read_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),header=0)
-                equation_df = old_data.append(equation_df)
+                equation_df = pd.concat([old_data,equation_df],axis=0)
                 equation_df.to_excel(staticfiles_storage.path(f'NSE/Models/Regression/Equation/{sector}.xlsx'),index=False)
         
         for sector in sectors:
