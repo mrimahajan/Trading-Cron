@@ -5,6 +5,7 @@ from datetime import date
 import numpy as np 
 import yfinance as yf
 import pandas as pd
+from decimal import Decimal
 import gc
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
