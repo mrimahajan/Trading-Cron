@@ -7,7 +7,6 @@ import pandas as pd
 import gc
 
 Name="NSE"
-Extension=".NS"
 
 for stock in Stock.objects.filter(Exchange__Name=Name):
   symbol = stock.Symbol
