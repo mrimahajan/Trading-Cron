@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest  # You can change this based on your environment
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Run script or command
         run: python update_data_nse.py
