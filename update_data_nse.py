@@ -1,6 +1,5 @@
 import os
 import django
-from Broker.models import *
 import datetime
 from datetime import date
 import numpy as np 
@@ -10,6 +9,8 @@ import gc
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
 django.setup() 
+
+from Broker.models import Stock
 
 Name="NSE"
 
