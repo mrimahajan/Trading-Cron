@@ -265,7 +265,7 @@ def run_daily():
                                 stock = Stock.objects.get(Symbol=share+Extension)
                                 if np.sign(stock.Expected_Price - stock.CLS_Price) == np.sign(last_price - stock.CLS_Price):
                                     evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'] += 1
-                                if np.sign(stock.Expected_Price - stock.CLS_Price) == np.sign(stock.probability - 50):
+                                if np.sign(last_price - stock.CLS_Price) == np.sign(stock.probability - 50):
                                     evaluation.loc[evaluation['Symbol']==share,'Correct Classification Prediction'] += 1
 
                     except:
