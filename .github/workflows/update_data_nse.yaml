@@ -14,6 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install django
+          pip install yfinance
 
       - name: Run script or command
         run: python update_data_nse.py
