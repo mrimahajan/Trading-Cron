@@ -2,7 +2,7 @@ name: Update NSE Data
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # This is the cron expression to run every 5 minutes
+    - cron: '*/1 * * * *'  # This is the cron expression to run every 5 minutes
 
 jobs:
   my_job:
