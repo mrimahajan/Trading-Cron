@@ -1,3 +1,5 @@
+import os
+import django
 from Broker.models import *
 import datetime
 from datetime import date
@@ -5,6 +7,9 @@ import numpy as np
 import yfinance as yf
 import pandas as pd
 import gc
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Trading.settings')
+django.setup() 
 
 Name="NSE"
 
