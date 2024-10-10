@@ -22,5 +22,5 @@ jobs:
 
       - name: Run script or command
         run: |
-        source venv/bin/activate
-        python update_data_nse_metals.py
+          source venv/bin/activate
+          python update_data_nse_metals.py
