@@ -13,7 +13,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install django
+          python -m venv venv               
+          source venv/bin/activate            
+          pip install --upgrade pip          
+          pip install django                 
           pip install yfinance
           pip install psycopg2
 
