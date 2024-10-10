@@ -21,4 +21,6 @@ jobs:
           pip install psycopg2
 
       - name: Run script or command
-        run: python update_data_nse_finance.py
+        run: |
+        source venv/bin/activate
+        python update_data_nse_finance.py
