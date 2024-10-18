@@ -25,6 +25,7 @@ class Stock(models.Model):
     CLS_Price = models.FloatField(null=True)
     EOD_Price = models.FloatField(null=True)  # Adjusted field type
     Expected_Price = ArrayField(models.FloatField(null=True))  # Adjusted field type
+    Prev_Returns = ArrayField(models.FloatField(null=True))
     net_return = models.FloatField(null=True)
     risk = models.FloatField(null=True)
     probability = models.FloatField(null=True)
