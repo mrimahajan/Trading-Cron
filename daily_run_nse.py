@@ -412,6 +412,7 @@ def run_daily():
                         expected_price = np.exp(reg_prediction)*expected_prices[i-1]
                         expected_prices.append(expected_price)
                     #net_return = np.round((np.exp(model_reg.predict(pred[input_cols])[0]) - 1)*100,6)
+                    prev_returns = [pred.loc[0,'log_return_1'],pred.loc[0,'log_return_2'],pred.loc[0,'log_return_3'],pred.loc[0,'log_return_4'],pred.loc[0,'log_return_5']]
                     net_return = np.round((expected_prices[0]/eod_price-1)*100,6) 
                     trade_days = evaluation.loc[evaluation['Symbol']==share,'Trade Days'].values[0]
                     correct_reg = evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'].values[0]
@@ -429,6 +430,7 @@ def run_daily():
                         stock.CLS_Price = eod_price
                         stock.EOD_Price = eod_price
                         stock.Expected_Price = expected_prices
+                        stock.Prev_Returns = prev_returns
                         stock.net_return = net_return 
                         stock.risk = risk
                         stock.probability = probability
@@ -453,7 +455,7 @@ def run_daily():
                     else:
                         # print(f'starting process from {share}')
                         stock = Stock(Exchange=market,Sector=sector,Company=company,Cap=cap,Symbol=share+".NS",Display=display,CLS_Price=eod_price,EOD_Price=eod_price,Expected_Price=expected_prices,
-                                        net_return=net_return,risk=risk,probability=probability,market_contri_reg=market_reg,momentum_contri_reg=momentum_reg,
+                                        Prev_Returns=prev_returns,net_return=net_return,risk=risk,probability=probability,market_contri_reg=market_reg,momentum_contri_reg=momentum_reg,
                                         mean_reversion_contri_reg=reversion_reg,voltality_contri_reg=voltality_reg,
                                         volume_contri_reg=volume_reg,market_contri_class=market_class,
                                         momentum_contri_class=momentum_class,mean_reversion_contri_class=reversion_class,
