@@ -367,6 +367,7 @@ def run_daily():
                     reg_prediction = model_reg.predict(pred[input_cols])[0]
                     expected_price = np.exp(reg_prediction)*eod_price
                     expected_prices.append(expected_price)
+                    prev_returns = [pred.loc[0,'log_return_1'],pred.loc[0,'log_return_2'],pred.loc[0,'log_return_3'],pred.loc[0,'log_return_4'],pred.loc[0,'log_return_5']]
                     latest_volume = pred.loc[0,'Volume']
                     for i in range(1,25):
                         pred.loc[0,'Close'] = expected_prices[-1]
@@ -412,7 +413,6 @@ def run_daily():
                         expected_price = np.exp(reg_prediction)*expected_prices[i-1]
                         expected_prices.append(expected_price)
                     #net_return = np.round((np.exp(model_reg.predict(pred[input_cols])[0]) - 1)*100,6)
-                    prev_returns = [pred.loc[0,'log_return_1'],pred.loc[0,'log_return_2'],pred.loc[0,'log_return_3'],pred.loc[0,'log_return_4'],pred.loc[0,'log_return_5']]
                     net_return = np.round((expected_prices[0]/eod_price-1)*100,6) 
                     trade_days = evaluation.loc[evaluation['Symbol']==share,'Trade Days'].values[0]
                     correct_reg = evaluation.loc[evaluation['Symbol']==share,'Correct Regression Prediction'].values[0]
