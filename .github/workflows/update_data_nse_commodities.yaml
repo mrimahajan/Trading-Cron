@@ -14,9 +14,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m venv venv                
-          source venv/bin/activate            
-          pip install --upgrade pip           
-          pip install django                  
+          source venv/bin/activate                 
+          pip install Django==5.0.11                  
           pip install yfinance==0.2.44
           pip install psycopg2
 
