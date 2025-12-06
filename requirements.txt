@@ -6,7 +6,7 @@ numpy==1.26.4
 pandas
 requests==2.32.2
 scipy==1.12.0
-urllib3==2.2.2
+urllib3==2.6.0
 openpyxl
 psycopg2
 yfinance==0.2.44
